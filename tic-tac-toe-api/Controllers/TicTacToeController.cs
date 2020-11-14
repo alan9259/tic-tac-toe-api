@@ -11,7 +11,7 @@ namespace tic_tac_toe_api.Controllers
     [Route("api/[controller]")]
     public class TicTacToeController : ControllerBase
     {
-        private static int[] _board;
+        private static Game _game;
         private static int[] _rows;
         private static int[] _cols;
 
@@ -26,39 +26,46 @@ namespace tic_tac_toe_api.Controllers
         }
 
         [HttpPost("NewGame")]
-        public IEnumerable<int> CreateNewGame(Game game)
+        public Game CreateNewGame(Game game)
         {
-            _board = new int[game.size];
-            _rows = new int[game.size];
-            _cols = new int[game.size];
+            int n = game.Size * game.Size;
 
-            return _board;
+            game.Board = new string[n];
+
+            _game = game;
+
+            _rows = new int[game.Size];
+            _cols = new int[game.Size];
+            _diag = 0;
+            _antiDiag = 0;
+
+            return _game;
         }
 
         [HttpPost("Move")]
         public int NextMove(Move move)
         {
-            int n = _board.Length;
+            int n = _game.Size;
 
-            int val = (move.player == 1) ? 1 : -1;
-            int target = (move.player == 1) ? n : -n;
+            int val = (move.Player == 1) ? 1 : -1;
+            int target = (move.Player == 1) ? n : -n;
 
-            _rows[move.row] += val;
-            _cols[move.col] += val;
+            _rows[move.Row] += val;
+            _cols[move.Col] += val;
 
-            if (move.row == move.col)
+            if (move.Row == move.Col)
             {
                 _diag += val;
             }
 
-            if (move.row == n - move.col - 1)
+            if (move.Row == n - move.Col - 1)
             {
                 _antiDiag += val;
             }
 
-            if (_rows[move.row] == target || _cols[move.col] == target || _diag == target || _antiDiag == target) 
+            if (_rows[move.Row] == target || _cols[move.Col] == target || _diag == target || _antiDiag == target) 
             {
-                return move.player;
+                return move.Player;
             }
 
             return 0;
